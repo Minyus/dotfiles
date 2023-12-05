@@ -28,6 +28,18 @@ config.keys = {
                 '.{6,}',
             },
             scope_lines = 0,
+            label = 'copy .{6,}',
+        },
+    },
+    {
+        key = 'P',
+        mods = 'CTRL',
+        action = wezterm.action.QuickSelectArgs {
+            patterns = {
+                '[a-zA-Z0-9_\\-\\.]{6,}',
+            },
+            scope_lines = 0,
+            label = 'copy [a-zA-Z0-9_\\-\\.]{6,}',
         },
     },
 }
