@@ -21,6 +21,17 @@ config.quick_select_patterns = {
 
 config.keys = {
     {
+        key = 'Y',
+        mods = 'CTRL',
+        action = wezterm.action.QuickSelectArgs {
+            patterns = {
+                '\\S{6,}',
+            },
+            scope_lines = 0,
+            label = 'copy a text separated by whitespace characters',
+        },
+    },
+    {
         key = 'L',
         mods = 'CTRL',
         action = wezterm.action.QuickSelectArgs {
@@ -28,7 +39,7 @@ config.keys = {
                 '.{6,}',
             },
             scope_lines = 0,
-            label = 'copy .{6,}',
+            label = 'copy a line',
         },
     },
     {
@@ -36,10 +47,10 @@ config.keys = {
         mods = 'CTRL',
         action = wezterm.action.QuickSelectArgs {
             patterns = {
-                '[a-zA-Z0-9_\\-\\.]{6,}',
+                '[^\\s\\/\'\"\\<\\>\\{\\}\\(\\)\\[\\]]{6,}',
             },
             scope_lines = 0,
-            label = 'copy [a-zA-Z0-9_\\-\\.]{6,}',
+            label = 'copy a text separated by whitespace/slash/quotation/bracket characters',
         },
     },
 }
