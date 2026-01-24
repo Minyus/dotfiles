@@ -1,0 +1,23 @@
+{
+  "title": "Caps Lock to Ctrl+C",
+  "rules": [
+    {
+      "description": "Change Caps Lock to Control + C",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "caps_lock",
+            "modifiers": { "optional": ["any"] }
+          },
+          "to": [
+            {
+              "key_code": "c",
+              "modifiers": ["left_control"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
