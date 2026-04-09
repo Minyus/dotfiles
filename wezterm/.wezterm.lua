@@ -58,7 +58,7 @@ config.keys = {
 config.disable_default_quick_select_patterns = true
 
 config.colors = {
-    quick_select_label_fg = { Color = '#ff0000' },
+    quick_select_label_fg = { Color = '#ffee00' },
     quick_select_match_fg = { Color = '#aaaaaa' },
     scrollbar_thumb = '#aaaaaa',
 }
