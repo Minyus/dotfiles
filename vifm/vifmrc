@@ -1,0 +1,217 @@
+"============================================================
+"vifm
+"vifmrc for Mac
+"============================================================
+
+" For l command :  -N  = --LINE-NUMBERS "
+"set vicmd="less -N"
+set vicmd=vim
+
+
+" Selected color scheme
+" Ref https://vifm.info/colorschemes.shtml
+" Ref https://github.com/vifm/vifm-colors
+" wget -P ~/.vifm/colors https://raw.githubusercontent.com/vifm/vifm-colors/master/solarized-dark.vifm
+" wget -P ~/.vifm/colors https://raw.githubusercontent.com/vifm/vifm-colors/master/near-default.vifm
+" colorscheme solarized-dark
+" colorscheme near-default
+
+
+"" show hiddden files in both panes
+set dotfiles
+" windo normal zo
+
+set viewcolumns=-45%{name}..,5{ext},10{size},12{perms},21{mtime}
+set timefmt=" %Y/%m/%d %H:%M:%S "
+
+set statusline="  %t  [%T]%= %A %10u:%-7g %15s %20d [%a free]"
+set sizefmt=units:iec,precision:3
+
+set history=100
+
+"------------------------------------------------------------
+"------------------------------------------------------------
+" Trash Directory
+" The default is to move files that are deleted with dd or :d to
+" the trash directory.  If you change this you will not be able to move
+" files by deleting them and then using p to put the file in the new location.
+" I recommend not changing this until you are familiar with vifm.
+" This probably shouldn't be an option.
+" set trash
+
+
+" Ignore case in search patterns unless it contains at least one uppercase
+" letter
+set ignorecase
+set smartcase
+
+" Don't highlight search results automatically
+set nohlsearch
+
+" Use increment searching (search while typing)
+set incsearch
+
+" set line number  "
+set number
+
+" show list of matches on tab complition in command-line mode "
+set wildmenu
+
+" use popup window instead of a single line for completion "
+set wildstyle=popup
+
+" show suggestions "
+set suggestoptions=normal,visual,view,otherpane,keys,marks,registers
+
+"------------------------------------------------------------
+" remap
+"------------------------------------------------------------
+" Synchronize the opposite pane with the current pane 
+nnoremap , :sync!<cr>
+nnoremap o :sync!<cr>
+" nnoremap , <Tab>:sync!<cr><Tab>
+" nnoremap o <Tab>:sync!<cr><Tab>
+
+" Start shell in current directory
+nnoremap s :shell<cr>
+
+" Display sorting dialog
+nnoremap S :sort<cr>
+
+nnoremap w :view<cr>
+
+" Set the space key to "Select the current file and move the cursor down one"
+nnoremap <space> t<down>
+
+" Faster renaming
+nnoremap I cw<c-a>
+nnoremap C cw<c-u>
+nnoremap A cw
+
+
+" New tabnnoremap gn :tabnew<cr>
+nnoremap gn :tabnew<cr>
+
+" Quit quickly
+nnoremap q :q<cr>
+
+
+"------------------------------------------------------------
+" copy path
+"----------------------------------------------------------------------
+" https://wiki.vifm.info/index.php/How_to_copy_path_to_current_file/directory_to_system_clipboard
+" How to copy path to current file/directory to system clipboard
+:com path :!echo -n %c:p | pbcopy %i<cr>:echo expand('%"c:p') "is yanked to clipboard"<cr>
+
+" yank current directory path into the clipboard
+nnoremap yd :!echo -n %d | pbcopy %i<cr>:echo expand('%"d') "is yanked to clipboard"<cr>
+
+" yank current file path into the clipboard
+nnoremap yf :!echo -n %c:p | pbcopy %i<cr>:echo expand('%"c:p') "is yanked to clipboard"<cr>
+
+" yank current filename without path into the clipboard
+nnoremap yn :!echo -n %c | pbcopy %i<cr>:echo expand('%"c') "is yanked to clipboard"<cr>
+
+" yank root of current file's name into the clipboard
+nnoremap yr :!echo -n %c:r | pbcopy %i<cr>:echo expand('%"c:r') "is yanked to clipboard"<cr>
+
+
+"----------------------------------------------------------------------
+" Commands
+"----------------------------------------------------------------------
+:com mv mv %f %D
+:com cp cp -pr %f %D
+
+:com one :only
+:com two :vsplit
+nnoremap O :only<cr>
+nnoremap T :two<cr>
+
+
+"----------------------------------------------------------------------
+" BookMark and Note
+"----------------------------------------------------------------------
+"peco"
+command bookmark :execute 'cd "'.term('cat ~/.vifm/bookmark.txt | peco 2>/dev/tty | sed "s/:.*//" ').'"'
+"fzf"
+" command bookmark :execute 'cd "'.term('cat ~/.vifm/bookmark.txt | fzf 2>/dev/tty | sed "s/:.*//" ').'"'
+nnoremap b :bookmark<cr>
+
+
+" find command is slow. You should use fd command.
+" command! cdfind :execute 'cd' "'".term('find . -not -path "*/.git/*" -type d 2>/dev/null | peco 2> /dev/tty |sed "s/$/\//" ')."'"
+command! cdfind :execute 'cd' "'".term('fd --type d --hidden --exclude .git --full-path  | peco 2> /dev/tty')."'"
+nnoremap C :cdfind<cr>
+
+
+:com cheatsheet vi ~/.vifm/cheatsheet.txt
+
+
+"----------------------------------------------------------------------
+" Program
+"----------------------------------------------------------------------
+command! vim vim %f
+nnoremap E :vim<cr>
+"nnoremap E :!code %f<cr>
+
+command diff vim -d %f %F
+
+nnoremap F :file<cr>
+
+nnoremap . :!open . <cr>
+
+" Open the current file with the associated default application
+nnoremap X :!open %f<cr>
+
+
+filetype *.txt open
+filetype *.md open
+filetype *.pdf open
+filetype *.sh open
+filetype *.sql open
+
+" Office files  "
+filetype *.doc,*.docx open
+filetype *.xls,*.xlsx,*.xlsm open
+filetype *.ppt,*.pptx open
+filetype *.ods open
+filetype *.odt open
+
+
+" Open .pkg binaries  "
+filetype *.pkg open
+
+" Google Drive"
+filetype *.gsheet open
+filetype *.gslides open
+filetype *.gdoc open
+
+
+" Drawio "
+filetype *.drawio  open
+
+
+" Image
+filetype {*.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm},<image/*>
+       \ open -a Preview.app,
+
+
+"-----------------
+" FUSE
+"-----------------
+:filetype *.ssh FUSE_MOUNT2|sshfs %PARAM %DESTINATION_DIR
+
+" FtpMount
+filetype *.ftp
+       \ {Mount with CurlFtpFS}
+       \ FUSE_MOUNT2|curlftpfs %PARAM %DESTINATION_DIR %CLEAR,
+
+" Don't do too many requests to slow file system
+set slowfs=curlftpfs
+
+
+"-----------------
+"icon
+"-----------------
+" https://github.com/cirala/vifm_devicons
+" source ~/.vifm/favicons.vifm
