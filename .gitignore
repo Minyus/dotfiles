@@ -1,3 +1,10 @@
 .DS_Store
 karabiner/automatic_backups/*
 karabiner/_backup_karabiner.json
+
+# Local git worktrees
+.worktrees/
+
+# Superpowers docs
+docs/superpowers/
+
