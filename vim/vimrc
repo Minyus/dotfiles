@@ -32,11 +32,13 @@ call plug#begin()
 Plug 'sheerun/vim-polyglot'
 Plug 'easymotion/vim-easymotion'
 Plug 'liuchengxu/vim-which-key'
+Plug 'airblade/vim-gitgutter'
 
 call plug#end()
 
 let g:EasyMotion_do_mapping = 0
 let g:EasyMotion_smartcase = 1
+let g:gitgutter_enabled = 1
 
 nnoremap <silent> , :WhichKey '<Space>'<CR>
 
