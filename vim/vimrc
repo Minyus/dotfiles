@@ -16,12 +16,14 @@ set wildmode=longest:full,full
 set completeopt=menuone,noinsert,noselect
 set clipboard=unnamedplus
 set signcolumn=yes
+set updatetime=100
 
 let mapleader = " "
 let maplocalleader = ","
 
 nnoremap <Space> <Nop>
 nnoremap , <Nop>
+
 
 highlight StatusLine ctermfg=0 ctermbg=7 guifg=#434C5E guibg=#8FBCBB
 highlight StatusLineNC ctermfg=0 ctermbg=7 guifg=#434C5E guibg=#8FBCBB
@@ -38,7 +40,30 @@ call plug#end()
 
 let g:EasyMotion_do_mapping = 0
 let g:EasyMotion_smartcase = 1
+
+highlight SignColumn ctermbg=NONE guibg=NONE
+highlight GitGutterAdd    guifg=#009900 ctermfg=2
+highlight GitGutterChange guifg=#bbbb00 ctermfg=3
+highlight GitGutterDelete guifg=#ff2222 ctermfg=1
+
 let g:gitgutter_enabled = 1
+let g:gitgutter_sign_column_always = 1
+let g:gitgutter_sign_added = 'A:'
+let g:gitgutter_sign_modified = 'M:'
+let g:gitgutter_sign_removed = '__'
+let g:gitgutter_sign_removed_first_line = '__'
+let g:gitgutter_sign_modified_removed = 'M:'
+
+" Jump between hunks
+nmap [c <Plug>(GitGutterPrevHunk)
+nmap ]c <Plug>(GitGutterNextHunk)
+
+" Hunk actions
+nmap <Leader>hs <Plug>(GitGutterStageHunk)
+nmap <Leader>hu <Plug>(GitGutterUndoHunk)
+nmap <Leader>hp <Plug>(GitGutterPreviewHunk)
+
+let g:gitgutter_max_signs = 1000
 
 nnoremap <silent> , :WhichKey '<Space>'<CR>
 
