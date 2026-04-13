@@ -163,12 +163,13 @@ nnoremap . :!open . <cr>
 " Open the current file with the associated default application
 nnoremap X :!open %f<cr>
 
+filetype <text/*>,<inode/x-empty> vim
 
-filetype *.txt open
-filetype *.md open
+" filetype *.txt open
+" filetype *.md open
 filetype *.pdf open
-filetype *.sh open
-filetype *.sql open
+" filetype *.sh open
+" filetype *.sql open
 
 " Office files  "
 filetype *.doc,*.docx open
