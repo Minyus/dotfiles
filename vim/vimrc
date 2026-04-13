@@ -1,7 +1,54 @@
 set nocompatible
 
+filetype plugin indent on
+syntax on
+
+set number
+set cursorline
+set guicursor=n-v-c-sm:block,i-ci-ve:ver25,r-cr-o:hor20
+set nowrap
+set showcmd
+set ruler
+set laststatus=2
+set noshowmode
+set wildmenu
+set wildmode=longest:full,full
+set completeopt=menuone,noinsert,noselect
+set clipboard=unnamedplus
+set signcolumn=yes
+
+let mapleader = " "
+let maplocalleader = ","
+
+nnoremap <Space> <Nop>
+nnoremap , <Nop>
+
+highlight StatusLine ctermfg=0 ctermbg=7 guifg=#434C5E guibg=#8FBCBB
+highlight StatusLineNC ctermfg=0 ctermbg=7 guifg=#434C5E guibg=#8FBCBB
+set statusline=%#StatusLine#\ %f%h%m%r%=%y\ %l:%c
+
 call plug#begin()
 
 Plug 'sheerun/vim-polyglot'
+Plug 'easymotion/vim-easymotion'
+Plug 'liuchengxu/vim-which-key'
 
 call plug#end()
+
+let g:EasyMotion_do_mapping = 0
+let g:EasyMotion_smartcase = 1
+
+nnoremap <silent> , :WhichKey '<Space>'<CR>
+
+nnoremap <leader>j <Plug>(easymotion-overwin-f)
+nnoremap <leader>k <Plug>(easymotion-overwin-f2)
+
+augroup python_ruff
+  autocmd!
+  autocmd BufWritePre *.py if executable('ruff') | silent execute '%!ruff format -' | endif
+augroup END
+
+augroup ipynb_json
+  autocmd!
+  autocmd BufRead,BufNewFile *.ipynb setfiletype json
+augroup END
