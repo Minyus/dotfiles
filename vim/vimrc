@@ -45,11 +45,11 @@ highlight GitGutterDelete guifg=#ff2222 ctermfg=1
 
 let g:gitgutter_enabled = 1
 let g:gitgutter_sign_column_always = 1
-let g:gitgutter_sign_added = 'A:'
-let g:gitgutter_sign_modified = 'M:'
+let g:gitgutter_sign_added = '+L'
+let g:gitgutter_sign_modified = '~L'
 let g:gitgutter_sign_removed = '__'
 let g:gitgutter_sign_removed_first_line = '__'
-let g:gitgutter_sign_modified_removed = 'M:'
+let g:gitgutter_sign_modified_removed = '~L'
 
 " Jump between hunks
 nmap [c <Plug>(GitGutterPrevHunk)
