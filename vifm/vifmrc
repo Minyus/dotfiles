@@ -19,6 +19,8 @@ set sort=+iname
 " colorscheme solarized-dark
 " colorscheme near-default
 
+fileviewer *[^/] rich %c --force-terminal --theme monokai --width %pw --soft --line-numbers
+
 
 "" show hiddden files in both panes
 set dotfiles
