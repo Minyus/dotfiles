@@ -7,6 +7,9 @@
 "set vicmd="less -N"
 set vicmd=vim
 
+set quickview
+
+set sort=+iname
 
 " Selected color scheme
 " Ref https://vifm.info/colorschemes.shtml
@@ -52,7 +55,7 @@ set nohlsearch
 set incsearch
 
 " set line number  "
-set number
+" set number
 
 " show list of matches on tab complition in command-line mode "
 set wildmenu
