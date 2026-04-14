@@ -24,11 +24,18 @@ set sort=+iname
 set dotfiles
 " windo normal zo
 
-set viewcolumns=-45%{name}..,5{ext},10{size},12{perms},21{mtime}
-set timefmt=" %Y/%m/%d %H:%M:%S "
+" set viewcolumns=-45%{name}..,5{ext},10{size},12{perms},21{mtime}
+set viewcolumns=-{name},16{mtime},9{size}
+
+" Persistent TUI layout
+set vifminfo+=tui
+
+set timefmt="%Y/%m/%d %H:%M"
 
 set statusline="  %t  [%T]%= %A %10u:%-7g %15s %20d [%a free]"
-set sizefmt=units:iec,precision:3
+" set sizefmt=units:iec,precision:3
+set sizefmt=units:iec
+
 
 set history=100
 
