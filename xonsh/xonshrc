@@ -1,0 +1,711 @@
+from xonsh.built_ins import XSH
+
+env = XSH.env
+aliases = XSH.aliases
+
+print(f"Configuring Xonsh: {__file__}")
+
+env["BASH_COMPLETIONS"] = (
+    "$HOME/.bashrc_from_context",
+    "$HOME/.bashrc",
+    "/usr/share/bash-completion/bash_completion",
+    "/usr/local/share/bash-completion/bash_completion",
+    "/usr/local/etc/bash_completion",
+)
+env["XONSH_HISTORY_SIZE"] = (3000, "commands")
+env["SUPPRESS_BRANCH_TIMEOUT_MESSAGE"] = True
+env["UPDATE_COMPLETIONS_ON_KEYPRESS"] = True
+env["AUTO_SUGGEST_IN_COMPLETIONS"] = True
+env["COMPLETIONS_MENU_ROWS"] = 8
+env["COMPLETION_IN_THREAD"] = True
+env["COMPLETIONS_CONFIRM"] = True
+env["CASE_SENSITIVE_COMPLETIONS"] = False
+env["SUGGEST_MAX_NUM"] = 30
+env["XONSH_HISTORY_MATCH_ANYWHERE"] = True
+env["AUTO_CD"] = True
+env[
+    "PROMPT"
+] = "{WHITE} ┌ {GREEN}{hostname} {WHITE}: {PURPLE}{cwd} {WHITE}( {gitstatus} )\n{WHITE} └ {INTENSE_YELLOW}{prompt_end} {WHITE}"
+env["INDENT"] = "    "
+env["HISTCONTROL"] = {"ignoredups", "ignoreerr"}
+env["IGNOREEOF"] = True
+env["MOUSE_SUPPORT"] = True
+env["PATH"].append("/Users/ym/.local/bin")
+# env["$XONSH_SHOW_TRACEBACK"] = True
+
+aliases["ll"] = "ls -l"
+aliases[
+    "t"
+] = "tree -L 1 -a -f -p --si --du --timefmt '%Y/%m/%d %H:%M' || (find . -maxdepth 1 | sort)"
+aliases[
+    "tt"
+] = "tree -L 2 -a -f -p --si --du --timefmt '%Y/%m/%d %H:%M' || (find . -maxdepth 2 | sort)"
+aliases[
+    "ttt"
+] = "tree -L 3 -a -f -p --si --du --timefmt '%Y/%m/%d %H:%M' || (find . -maxdepth 3 | sort)"
+aliases[
+    "tttt"
+] = "tree -L 4 -a -f -p --si --du --timefmt '%Y/%m/%d %H:%M' || (find . -maxdepth 4 | sort)"
+aliases[
+    "ttttt"
+] = "tree -L 5 -a -f -p --si --du --timefmt '%Y/%m/%d %H:%M' || (find . -maxdepth 5 | sort)"
+aliases["f"] = "(find . -maxdepth 1 | sort)"
+aliases["ff"] = "(find . -maxdepth 2 | sort)"
+aliases["vi"] = "vim"
+aliases["vb"] = "vim ~/.bashrc"
+aliases["vx"] = "vim ~/.xonshrc"
+aliases["vs"] = "vim ~/.ssh/config"
+aliases["vv"] = "vim ~/.vimrc"
+aliases["d"] = "cd .."
+aliases["dd"] = "cd ../.."
+aliases["ddd"] = "cd ../../.."
+aliases["dddd"] = "cd ../../../.."
+aliases["ddddd"] = "cd ../../../../.."
+aliases["h"] = "cd .."
+aliases["hh"] = "cd ../.."
+aliases["hhh"] = "cd ../../.."
+aliases["hhhh"] = "cd ../../../.."
+aliases["hhhhh"] = "cd ../../../../.."
+aliases["fh"] = "free -h"
+aliases["wf"] = "watch free -h"
+aliases["nb"] = "python -m euporie"
+aliases[
+    "jup"
+] = "jupyter notebook --ip 0.0.0.0 --allow-root --no-browser --no-mathjax --notebook-dir ."
+aliases["ten"] = "tensorboard --host 0.0.0.0 --logdir"
+aliases["mlf"] = "mlflow server --host 0.0.0.0"
+aliases["ked"] = "kedro viz --host 0.0.0.0"
+aliases["doc"] = "docker"
+aliases["de"] = "docker exec -it"
+aliases["dc"] = "docker-compose"
+aliases["k"] = "kubectl"
+aliases["kn"] = "kubectl config set-context --current --namespace"
+aliases[
+    "wg"
+] = "kubectl run cc --image=busybox --restart=Never -it --rm -- wget --timeout=2 -O-"
+aliases[
+    "kdp"
+] = "for p in $(kubectl get po --no-headers | cut -d ' ' -f 1 | tr '\n' ' '); do kubectl delete po ${p}; done"
+aliases["cl"] = "xclip -in -sel clip"
+aliases["rand"] = "openssl rand -hex 20"
+aliases["dfh"] = "df -h"
+aliases["drop_caches"] = 'sudo sh -c "echo 3 > /proc/sys/vm/drop_caches"'
+aliases["vd"] = r"""vimdiff -c "windo set wrap" """
+
+aliases["ga"] = "git add ."
+aliases["gc"] = "git commit"
+aliases["gp"] = "git push"
+aliases["gf"] = "git fetch"
+aliases["gs"] = "git status"
+aliases["gmn"] = "git merge --no-commit --no-ff"
+aliases["gsw"] = "git switch"
+aliases[
+    "gl"
+] = """bash -c 'git log --pretty=format:"     %x09 %ad %C(Green)%h %<(18)%C(Yellow)%an %<(10)%C(Cyan)%d %C(reset)%s" --date=format:%Y-%m-%d --all --graph'"""
+aliases["gff"] = "git config core.fileMode false"
+
+aliases["lg"] = "lazygit"
+
+
+from pathlib import Path
+import sys
+import traceback
+
+
+def _get_exception_msg():
+    return "".join(traceback.format_exception(*sys.exc_info()))
+
+
+def _add_sep(msg):
+    return "\n".join(
+        [
+            "-" * 50,
+            msg,
+            "-" * 50,
+        ]
+    )
+
+
+def _insert_stdin(args, stdin=None):
+    if stdin:
+        inp = stdin.read()
+        file = "/tmp/_stdin.txt"
+        with open(file, "w") as f:
+            f.write(inp)
+        args.insert(0, file)
+    return args
+
+
+def _run(script, verbose=True):
+    if verbose:
+        print(r">>> ", script)
+
+        from time import sleep
+
+        sleep(0.2)
+
+    import subprocess
+
+    return subprocess.run(script, shell=isinstance(script, str), capture_output=True)
+
+
+# https://stackoverflow.com/a/15993574
+def _git_switch_head_only(args, stdin=None):
+    branch = args[0]
+    script = (
+        f"git checkout --detach && git reset --soft {branch} && git checkout {branch}"
+    )
+    _run(script)
+
+
+aliases["gsh"] = _git_switch_head_only
+
+
+def _highlight(args, stdin=None):
+    args = _insert_stdin(args, stdin)
+    if len(args) <= 0:
+        print("Error: Insufficient arguments")
+        return
+    args.extend([r"\{", r"\}"])
+    file = args[0]
+    patterns = args[1:]
+    COLORS = ["01;31", "01;32", "01;33", "01;34", "01;35", "01;36"]
+    script = f"cat {file}"
+    for i, pattern in enumerate(patterns):
+        color = COLORS[i % len(COLORS)]
+        script += f' | GREP_COLOR="{color}" grep --color=always -E "{pattern}|$"'
+    _run(script)
+    return 0
+
+
+aliases["hl"] = _highlight
+
+
+def _highlight_values(args, stdin=None):
+    args = _insert_stdin(args, stdin)
+    if len(args) <= 0:
+        print("Error: Insufficient arguments")
+        return
+    file = args[0]
+    patterns = args[1:]
+    COLORS = ["01;31", "01;32", "01;33", "01;34", "01;35", "01;36"]
+    script = f"cat {file}"
+    for i, pattern in enumerate(patterns):
+        color = COLORS[i % len(COLORS)]
+        pattern = r"\"?" + pattern + r"[^,]*"
+        script += f' | GREP_COLOR="{color}" grep --color=always -E "{pattern}|$"'
+    _run(script)
+    return 0
+
+
+aliases["hv"] = _highlight_values
+
+
+def _grep_cat(args, stdin=None):
+    if args:
+        path = args[0]
+    else:
+        path = "./"
+    script = f"find {path} -type f | sort | xargs | xargs grep '$'"
+    _run(script)
+    return 0
+
+
+aliases["gcat"] = _grep_cat
+
+
+def _vimdiff_dir(args, stdin=None):
+    tp_list = []
+    for path in args:
+        tdp = f"/tmp/vdd/{path}"
+        tp = tdp + "/_"
+        tp_list.append(tp)
+        script = f"mkdir -p {tdp} ; cd {path} ; find . -type f | sort | xargs | xargs grep '$' > {tp} | cd - "
+        _run(script)
+    script = f"""vimdiff -c "windo set wrap" """ + " ".join(tp_list)
+    _run(script)
+    return 0
+
+
+aliases["vdd"] = _vimdiff_dir
+
+
+def _range(args, stdin=None):
+    args = _insert_stdin(args, stdin)
+    if len(args) <= 1:
+        print("Error: Insufficient arguments")
+        return
+    file = args[0]
+    start = args[1]
+    end = args[2] if len(args) >= 3 else args[1]
+    script = f"sed -n '{start},{end}p' {file}"
+    _run(script)
+    return 0
+
+
+aliases["rng"] = _range
+
+
+def _binary_search(f, x, low, high, last_offset):
+    assert high <= last_offset
+    assert low <= high
+    if high >= low:
+        mid = (low + high) // 2
+        f.seek(mid)
+
+        from datetime import datetime
+
+        dt_fmt = "%Y-%m-%d %H:%M:%S"
+        while True:
+            current = f.tell()
+            window = f.readline()[:19]
+            if window:
+                try:
+                    t = datetime.strptime(window, dt_fmt).time()
+                    break
+                except ValueError:
+                    continue
+            else:
+                break
+
+        if (current > high) or (t == x):
+            return current
+        elif t < x:
+            next = f.tell()
+            if next <= high:
+                return _binary_search(f, x, next, high, last_offset)
+            elif next <= last_offset:
+                return next
+            else:
+                return -1
+        else:
+            if mid - 1 >= low:
+                return _binary_search(f, x, low, mid - 1, last_offset)
+            else:
+                return low
+
+
+def _filter_time(args, stdin=None):
+    if stdin:
+        temp_file_path = "/tmp/stdin"
+        f = open(temp_file_path, "w+")
+        f.write(stdin.read())
+        stdin.close()
+        target = args[0]
+    else:
+        f = open(args[0])
+        target = args[1]
+
+    c = target.count(":")
+    if c == 1:
+        target = target + ":00"
+    if c == 0:
+        target = target + ":00:00"
+    time_fmt = "%H:%M:%S"
+
+    from datetime import datetime
+
+    target_time = datetime.strptime(target, time_fmt).time()
+
+    file_size = f.seek(0, 2)
+
+    last_offset = file_size - 1
+
+    i = _binary_search(f, target_time, 0, last_offset, last_offset)
+
+    if i >= 0:
+        f.seek(i)
+        content = f.read()
+
+        import sys
+
+        sys.stdout.write(content)
+
+    f.close()
+    return 0
+
+
+aliases["ft"] = _filter_time
+
+
+def _hash_container(args, stdin=None):
+    container = args[0]
+    script = (
+        f"sudo docker exec -it {container}"
+        + r""" bash -c "find ./ -type f -not -path './.git*' -not -path './repo*' -not -name '.env' -print0 | sort -z | xargs -0 sha1sum | sha1sum"""
+    )
+    _run(script)
+
+
+aliases["hc"] = _hash_container
+
+
+def _s3_download(args, stdin=None):
+    endpoint_url = args[0]
+    bucket = args[1]
+    bucket_file_path = args[2]
+    local_dir = dict(enumerate(args)).get(3) or "./"
+
+    from pathlib import Path
+
+    Path(local_dir).mkdir(parents=True, exist_ok=True)
+    local_file_name = Path(bucket_file_path).name
+    local_file_path = str(Path(local_dir) / local_file_name)
+
+    import boto3
+
+    boto3.client("s3", endpoint_url=endpoint_url).download_file(
+        bucket, bucket_file_path, local_file_path
+    )
+
+    print(local_file_path)
+    return local_file_path
+
+
+aliases["sdownload"] = _s3_download
+
+
+def _s3_download_n(args, stdin=None):
+    for p in args[2:]:
+        _s3_download(args[:2] + [p])
+
+
+aliases["sdownloadn"] = _s3_download_n
+
+
+def _s3_imgcat(args, stdin=None):
+    for p in args[2:]:
+        local_file_path = _s3_download(args[:2] + [p])
+        script = f"imgcat {local_file_path}"
+        _run(script)
+
+
+aliases["simgcat"] = _s3_imgcat
+
+
+def _container_info(args, stdin=None):
+    if args:
+        c = args[0]
+    else:
+        c = "icas"
+    _run(
+        r'echo $HOSTNAME ; date +"%Y-%m-%d %H:%M:%S %Z" ; sudo docker container ls --format "{{.Names}}" | grep '
+        + c
+        + r""" | grep -v redis | sort | xargs -I {} sudo docker exec {} sh -uxc "echo --- container: {} ; echo --- ; echo --- ; grep -r '^' .git/refs/heads ; cat .git/HEAD ; cat .git/COMMIT_EDITMSG ; echo --- ; cat .env ; echo ---; env ; echo --- ; conda env export -n venv ; echo --- ; /home/docker/miniconda/envs/venv/bin/pip freeze ; echo --- ; du -ab --exclude=.git | sort -k2 ; echo --------- " > ${HOSTNAME}_container_info.txt"""
+    )
+
+
+aliases["cinfo"] = _container_info
+
+
+def _ssh_container_info(args, stdin=None):
+    host = args.pop(0)
+    if args:
+        c = args[0]
+    else:
+        c = "icas"
+    _run(
+        r"ssh "
+        + host
+        + " "
+        + r"""bash -c 'echo $HOSTNAME ; date +"%Y-%m-%d %H:%M:%S %Z" ; sudo docker container ls --format "{{.Names}}" | grep """
+        + c
+        + r""" | grep -v redis | sort | xargs -I {} sudo docker exec {} sh -uxc "echo --- container: {} ; echo --- ; grep -r '^' .git/refs/heads ; cat .git/HEAD ; cat .git/COMMIT_EDITMSG ; echo --- ; cat .env ; echo ---; env ; echo --- ; conda env export -n venv ; echo --- ; pip freeze ; /home/docker/miniconda/envs/venv/bin/pip freeze ; echo --- ; du -ab --exclude=.git | sort -k2 ; echo --------- "' > """
+        + host
+        + """.container_info.txt"""
+    )
+
+
+aliases["sshcinfo"] = _ssh_container_info
+
+
+def _conda_create_f(args, stdin=None):
+    file = args[0]
+    if len(args) >= 2:
+        name = args[1]
+    else:
+        from datetime import datetime
+
+        ts = datetime.now().strftime("%Y%m%dT%H%M%S")
+        name = file + "_" + ts
+    script = f"""conda env remove -n {name} ; conda env create -n {name} -f {file} --no-default-packages ; echo "$(conda env list | grep -E {name} | tr -s ' ' | cut -d ' ' -f 2 )/bin" """
+    _run(script)
+
+
+aliases["conda_create_f"] = _conda_create_f
+
+
+def _read_csv(args, stdin=None):
+    args = _insert_stdin(args, stdin)
+    if len(args) <= 1:
+        print("Error: Insufficient arguments")
+        return
+    file = args[0]
+    read_args = args[1:]
+    usecols = None
+
+    try:
+        if r"=" not in read_args[0]:
+            usecols = read_args.pop(0)
+            usecols = usecols.split(",")
+        kwargs = {a.split(r"=", 1)[0]: a.split(r"=", 1)[1] for a in read_args}
+        for k, v in kwargs.items():
+            try:
+                kwargs[k] = eval(v)
+            except Exception:
+                pass
+        kwargs.setdefault("dtype", str)
+        if usecols:
+            kwargs.setdefault("usecols", usecols)
+
+        query = kwargs.pop("query", None)
+        to_csv = kwargs.pop("to_csv", None)
+
+        try:
+            import modin.pandas as pd
+
+            if to_csv:
+                print("imported modin")
+        except Exception:
+            import pandas as pd
+
+            if to_csv:
+                print("imported pandas")
+
+        df = pd.read_csv(file, **kwargs)
+        if query:
+            df = df.query(query)
+        if to_csv:
+            print("Read dataframe: {}".format(df.shape))
+            df.to_csv(to_csv, index=False)
+            print("Saved at: {}".format(to_csv))
+            try:
+                script = 'pandas_profiling --title "{}" "{}" "{}.html"'.format(
+                    to_csv, to_csv, to_csv
+                )
+                _run(script)
+            except Exception:
+                pass
+            return 0
+        content = df.to_csv(index=False)
+        import sys
+
+        sys.stdout.write(content)
+        return 0
+    except Exception:
+        msg = _get_exception_msg()
+        print(_add_sep(msg))
+        return 1
+
+
+aliases["read_csv"] = _read_csv
+
+
+def _exc_join(args, stdin=None):
+    args = _insert_stdin(args, stdin)
+    if len(args) <= 1:
+        print("Error: Insufficient arguments")
+        return
+    file = args[0]
+    exc_file = args[1]
+    read_args = args[2:]
+
+    try:
+        kwargs = {a.split(r"=", 1)[0]: a.split(r"=", 1)[1] for a in read_args}
+        for k, v in kwargs.items():
+            kwargs[k] = eval(v)
+        query = kwargs.pop("query", None)
+        kwargs.setdefault("dtype", str)
+        header = kwargs.get("header", True)
+        sep = kwargs.get("sep", ",")
+
+        import pandas as pd
+
+        df = pd.read_csv(file, **kwargs)
+        if query:
+            df = df.query(query)
+
+        edf = pd.read_csv(exc_file, **kwargs)
+        df = df.merge(edf, how="left", indicator=True)
+        df = df.query('_merge == "left_only"').drop(columns="_merge")
+        content = df.to_csv(index=False, header=header, sep=sep)
+        import sys
+
+        sys.stdout.write(content)
+        return 0
+    except Exception:
+        msg = _get_exception_msg()
+        print(_add_sep(msg))
+        return 1
+
+
+aliases["exc_join"] = _exc_join
+
+
+def _join(args, stdin=None):
+    args = _insert_stdin(args, stdin)
+    if len(args) <= 1:
+        print("Error: Insufficient arguments")
+        return
+    file = args[0]
+    exc_file = args[1]
+    read_args = args[2:]
+
+    try:
+        kwargs = {a.split(r"=", 1)[0]: a.split(r"=", 1)[1] for a in read_args}
+        for k, v in kwargs.items():
+            kwargs[k] = eval(v)
+        query = kwargs.pop("query", None)
+        kwargs.setdefault("dtype", str)
+        header = kwargs.get("header", True)
+        sep = kwargs.get("sep", ",")
+
+        import pandas as pd
+
+        df = pd.read_csv(file, **kwargs)
+        if query:
+            df = df.query(query)
+
+        edf = pd.read_csv(exc_file, **kwargs)
+        df = df.merge(edf, how="inner", indicator=False)
+        content = df.to_csv(index=False, header=header, sep=sep)
+        import sys
+
+        sys.stdout.write(content)
+        return 0
+    except Exception:
+        msg = _get_exception_msg()
+        print(_add_sep(msg))
+        return 1
+
+
+aliases["join"] = _join
+
+
+def _show_image(im, outfile="/tmp/_image.jpg", size=None):
+    out_im = im.convert("RGB")
+    if size:
+        if not isinstance(size, tuple):
+            size = (size, size)
+        out_im.thumbnail(size)
+    out_im.save(outfile, "JPEG")
+    script = "imgcat " + outfile
+    _run(script)
+
+
+def _image_info(args, stdin=None):
+    args = _insert_stdin(args, stdin)
+    if len(args) <= 0:
+        print("Error: Insufficient arguments")
+        return
+    infile = args[0]
+    # input file path
+
+    size = eval(args[1]) if len(args) >= 2 else 100
+    # size for thumbnail
+    # Reference: https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image.thumbnail
+
+    box = eval(args[2]) if len(args) >= 3 else None
+    # The crop rectangle, as a (left, upper, right, lower)-tuple: either float ratio (0.0-1.0) or int
+    # Reference: https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image.crop
+
+    n_limit = eval(args[3]) if len(args) >= 4 else 10
+
+    from PIL import Image, UnidentifiedImageError
+    from glob import glob
+
+    if infile.startswith("http"):
+
+        outfile_name = Path(infile).name
+        outfile = str(Path("/tmp") / outfile_name)
+
+        try:
+            import urllib.request as req
+
+            req.urlretrieve(infile, outfile)
+        except Exception:
+            _run(f"curl {infile} > {outfile} || wget {infile} -O {outfile}")
+
+        infile = outfile
+
+    infiles = sorted([p for p in glob(infile, recursive=True) if Path(p).is_file()])
+
+    count = 0
+
+    for infile in infiles:
+
+        outfile_name = Path(infile).name
+        outfile = str(Path("/tmp") / outfile_name)
+
+        try:
+
+            assert Path(infile).is_file()
+
+            with Image.open(infile) as im:
+
+                # print(f"Image: {infile}")
+
+                if box is not None:
+                    box_coordinates = []
+                    assert isinstance(box, tuple)
+                    for i, c in enumerate(list(box)):
+                        if isinstance(c, float):
+                            assert c >= 0
+                            assert c <= 1
+                            if i in {0, 2}:  # left, right
+                                c = int(c * im.size[0])
+                            if i in {1, 3}:  # upper, lower
+                                c = int(c * im.size[1])
+                        assert isinstance(c, int)
+                        box_coordinates.append(c)
+                    im = im.crop(tuple(box_coordinates))
+                    outfile_name += (
+                        "_" + "_".join([str(c) for c in box_coordinates]) + ".jpg"
+                    )
+
+                _show_image(im, outfile, size)
+
+                print(f"{infile} (w{im.size[0]} x h{im.size[1]}: {im.mode})\n")
+
+                count += 1
+                if count >= n_limit:
+                    print(f"Reached the limit: {n_limit}")
+                    break
+
+        except UnidentifiedImageError:
+            print(f"(Not an image: {infile})\n")
+        except Exception:
+            msg = _get_exception_msg()
+            print(_add_sep(msg))
+
+
+aliases["ii"] = _image_info
+
+
+def _vf(args):
+    $dir = $(vifm --choose-dir - @(args)).strip()
+    if not $dir:
+        echo "Directory picking cancelled/failed"
+        return 1
+    cd $dir
+
+
+aliases["vf"] = _vf
+
+print(f"Configured Xonsh: {__file__}")
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+import sys as _sys
+from types import ModuleType as _ModuleType
+_mod = _ModuleType("xontrib.conda",
+                   "Autogenerated from $(/Users/ym/opt/miniconda3/bin/conda shell.xonsh hook)")
+__xonsh__.execer.exec($("/Users/ym/opt/miniconda3/bin/conda" "shell.xonsh" "hook"),
+                      glbs=_mod.__dict__,
+                      filename="$(/Users/ym/opt/miniconda3/bin/conda shell.xonsh hook)")
+_sys.modules["xontrib.conda"] = _mod
+del _sys, _mod, _ModuleType
+# <<< conda initialize <<<
+
+conda activate py311
+
