@@ -10,7 +10,6 @@ set nowrap
 set showcmd
 set ruler
 set laststatus=2
-set noshowmode
 set wildmenu
 set wildmode=longest:full,full
 set completeopt=menuone,noinsert,noselect
@@ -24,19 +23,17 @@ let maplocalleader = ","
 nnoremap <Space> <Nop>
 nnoremap , <Nop>
 
-
-highlight StatusLine ctermfg=0 ctermbg=7 guifg=#434C5E guibg=#8FBCBB
-highlight StatusLineNC ctermfg=0 ctermbg=7 guifg=#434C5E guibg=#8FBCBB
-set statusline=%#StatusLine#\ %f%h%m%r%=%y\ %l:%c
-
 call plug#begin()
 
 Plug 'sheerun/vim-polyglot'
 Plug 'easymotion/vim-easymotion'
 Plug 'liuchengxu/vim-which-key'
 Plug 'airblade/vim-gitgutter'
+Plug 'vim-airline/vim-airline'
 
 call plug#end()
+
+set noshowmode
 
 let g:EasyMotion_do_mapping = 0
 let g:EasyMotion_smartcase = 1
