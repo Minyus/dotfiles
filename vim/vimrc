@@ -31,6 +31,7 @@ Plug 'liuchengxu/vim-which-key'
 Plug 'airblade/vim-gitgutter'
 Plug 'vim-airline/vim-airline'
 Plug 'prabirshrestha/vim-lsp'
+Plug 'dense-analysis/ale'
 
 call plug#end()
 
@@ -79,10 +80,13 @@ if executable('ruff')
         \ })
 endif
 
-augroup python_ruff
-  autocmd!
-  autocmd BufWritePre *.py if executable('ruff') | silent execute '%!ruff format -' | endif
-augroup END
+let g:ale_fixers = {
+\   'python': ['ruff', 'ruff_format'],
+\}
+let g:ale_linters = {
+\   'python': [],
+\}
+let g:ale_fix_on_save = 1
 
 augroup ipynb_json
   autocmd!
