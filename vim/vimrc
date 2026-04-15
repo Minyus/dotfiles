@@ -37,6 +37,24 @@ call plug#end()
 
 set noshowmode
 
+function! s:SyncYankToSystemClipboard() abort
+  if !has('macunix') || !executable('pbcopy')
+    return
+  endif
+
+  let l:text = getreg('"')
+  if getregtype('"') ==# 'V'
+    let l:text .= "\n"
+  endif
+
+  call system('pbcopy', l:text)
+endfunction
+
+augroup mac_clipboard
+  autocmd!
+  autocmd TextYankPost * if v:event.operator ==# 'y' | call s:SyncYankToSystemClipboard() | endif
+augroup END
+
 let g:EasyMotion_do_mapping = 0
 let g:EasyMotion_smartcase = 1
 
