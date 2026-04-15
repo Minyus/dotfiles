@@ -1,0 +1,55 @@
+[tool.ruff]
+# Match Black's default line length (88)
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.format]
+# Enable Black-compatible formatting
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "ANN401",
+    "BLE001",
+    "C408",
+    "C418",
+    "C901",
+    "COM812",
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D107",
+    "D202",
+    "D203",
+    "D213",
+    "E501",
+    "ERA001",
+    "EXE002",
+    "FBT001",
+    "FBT002",
+    "INP001",
+    "S307",
+    "PTH123",
+    "PLR0912",
+    "PLR0913",
+    "PLR0915",
+    "PLR1711",
+    "PLR2004",
+    "Q000",
+    "RET501",
+    "RUF005",
+    "S101",
+    "S602",
+    "S603",
+    "E203",
+    "TRY003",
+    "EM101",
+    "EM102",
+    "EM103",
+]
+
