@@ -30,6 +30,7 @@ Plug 'easymotion/vim-easymotion'
 Plug 'liuchengxu/vim-which-key'
 Plug 'airblade/vim-gitgutter'
 Plug 'vim-airline/vim-airline'
+Plug 'prabirshrestha/vim-lsp'
 
 call plug#end()
 
@@ -66,6 +67,17 @@ nnoremap <silent> , :WhichKey '<Space>'<CR>
 
 nnoremap <leader>j <Plug>(easymotion-overwin-f)
 nnoremap <leader>k <Plug>(easymotion-overwin-f2)
+
+" Python
+
+if executable('ruff')
+    au User lsp_setup call lsp#register_server({
+        \ 'name': 'ruff',
+        \ 'cmd': {server_info->['ruff', 'server']},
+        \ 'allowlist': ['python'],
+        \ 'workspace_config': {},
+        \ })
+endif
 
 augroup python_ruff
   autocmd!
